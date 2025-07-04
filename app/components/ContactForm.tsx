@@ -1,7 +1,6 @@
 'use client';
 
-import { useState } from 'react';
-import { ChangeEvent, FormEvent } from 'react';
+import { useState, ChangeEvent, FormEvent } from 'react';
 
 export default function ContactForm() {
   const [form, setForm] = useState({
@@ -16,21 +15,24 @@ export default function ContactForm() {
   const [errors, setErrors] = useState<{ [key: string]: string }>({});
 
   const handleChange = (e: ChangeEvent<HTMLInputElement | HTMLTextAreaElement>) => {
-    const { name, value, type, checked } = e.target;
-    setForm((prev) => ({ ...prev, [name]: type === 'checkbox' ? checked : value }));
+    const { name, value, type } = e.target;
+    const inputValue = type === 'checkbox' && 'checked' in e.target
+      ? (e.target as HTMLInputElement).checked
+      : value;
+
+    setForm((prev) => ({ ...prev, [name]: inputValue }));
   };
 
   const validate = () => {
     const newErrors: { [key: string]: string } = {};
     if (!form.name) newErrors.name = 'Name is required';
     if (!form.phone) newErrors.phone = 'Phone is required';
-    
-    // Better email validation using regex
+
     const emailRegex = /^[a-zA-Z0-9._%+-]+@[a-zA-Z0-9.-]+\.[a-zA-Z]{2,}$/;
     if (!form.email || !emailRegex.test(form.email)) {
       newErrors.email = 'Valid email is required';
     }
-    
+
     if (!form.message) newErrors.message = 'Message is required';
     if (!form.time) newErrors.time = 'Preferred time is required';
     if (!form.agree) newErrors.agree = 'You must agree to be contacted';
